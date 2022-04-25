@@ -1,0 +1,4 @@
+from modified_classes.modified_fast_rcnn_output_layers import ModifiedFastRCNNOutputLayers
+from modified_classes.modified_image_list import ModifiedImageList
+
+__all__ = ["ModifiedFastRCNNOutputLayers", "ModifiedImageList"]
