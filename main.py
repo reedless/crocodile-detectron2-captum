@@ -84,7 +84,7 @@ def main():
     # Gradient SHAP
     gs = GradientShap(wrapper)
     attributions, delta = gs.attribute(input_,
-                                    baselines=baseline_dist,
+                                    stdevs=0.09, n_samples=4, baselines=baseline_dist,
                                     target=pred_class, 
                                     return_convergence_delta=True)
 
