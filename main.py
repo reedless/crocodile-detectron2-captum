@@ -100,7 +100,7 @@ def main():
 
     # DeepLiftShap
     dls = DeepLiftShap(wrapper)
-    attributions, delta = dls.attribute(input_, baseline, target=pred_class, return_convergence_delta=True)
+    attributions, delta = dls.attribute(input_.float(), baseline_dist, target=pred_class, return_convergence_delta=True)
     print('DeepLiftShap Convergence Delta:', delta)
     print('Deep Lift SHAP Average delta per example:', torch.mean(delta.reshape(input_.shape[0], -1), dim=1))
     save_attr_mask(attributions, img, 'DeepLiftShap')
