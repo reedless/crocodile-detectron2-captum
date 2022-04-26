@@ -137,7 +137,7 @@ def main():
 
     # Occlusion
     ablator = Occlusion(wrapper)
-    attr = ablator.attribute(input_, target=pred_class, sliding_window_shapes=(1, 3,3))
+    attr = ablator.attribute(input_, target=pred_class, sliding_window_shapes=(1, 3,3), show_progress=True)
     save_attr_mask(attr, img, 'Occlusion')
 
 def new_preprocess_image(self, batched_inputs: torch.Tensor):
