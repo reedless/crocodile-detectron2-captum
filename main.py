@@ -170,7 +170,7 @@ def save_attr_mask(attributions, img, algo_name):
     axs[0, 1].imshow(img, alpha=0.5)
     axs[0, 1].axis('off')
     plt.tight_layout()
-    plt.savefig(f'{algo_name}_mask.png', bbox_inches='tight')
+    plt.savefig(f'outputs/{algo_name}_mask.png', bbox_inches='tight')
 
 
 if __name__ == "__main__":
