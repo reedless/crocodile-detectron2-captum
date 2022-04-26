@@ -37,10 +37,8 @@ def main():
     img = cv2.imread('dataset/night/20201201_000505.jpg')
 
     # resize image
-    while img.shape[0] > 1000:
+    while img.shape[0] > 500:
         img = cv2.resize(img, (img.shape[0]//2, img.shape[1]//2), interpolation = cv2.INTER_AREA)
-    while img.shape[0] < 500:
-        img = cv2.resize(img, (img.shape[0]*2, img.shape[1]*2), interpolation = cv2.INTER_AREA)
 
     # convert to tensor, define baseline and baseline distribution
     input_   = torch.from_numpy(img).permute(2,0,1).unsqueeze(0).to(device)
