@@ -1,0 +1,6 @@
+Integrated Gradients Convergence Delta: tensor([-0.7729], device='cuda:0', dtype=torch.float64)
+GradientShap Convergence Delta: tensor([-0.9953, -0.9981, -0.9980, -0.9825], device='cuda:0')
+GradientShap Average Delta per example: tensor([-0.9935], device='cuda:0')
+DeepLift Convergence Delta: tensor([-0.9991], device='cuda:0')
+DeepLiftShap Convergence Delta: tensor([-0.9991, -0.9991, -0.9991, -0.9991, -0.9991], device='cuda:0')
+Deep Lift SHAP Average delta per example: tensor([-0.9991], device='cuda:0')
