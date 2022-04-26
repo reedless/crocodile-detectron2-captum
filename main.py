@@ -45,8 +45,8 @@ def main():
         img = cv2.resize(img, (img.shape[0]//2, img.shape[1]//2), interpolation = cv2.INTER_AREA)
 
     # convert to tensor, define baseline and baseline distribution
-    input_   = torch.from_numpy(img).permute(2,0,1).unsqueeze(0).to(device)
-    baseline = torch.zeros(input_.shape).to(device)
+    input_   = torch.from_numpy(img).permute(2,0,1).unsqueeze(0).to(device).type(torch.cuda.FloatTensor)
+    baseline = torch.zeros(input_.shape).to(device).type(torch.cuda.FloatTensor)
     baseline_dist = torch.randn(5, input_.shape[1], input_.shape[2], input_.shape[3]).to(device) * 0.001
 
     # load model
@@ -152,7 +152,7 @@ def new_preprocess_image(self, batched_inputs: torch.Tensor):
 
 def save_attr_mask(attributions, img, algo_name):
     # C, H, W -> H, W, C
-    attributions = attributions[0].permute(1,2,0).cpu().numpy()
+    attributions = attributions[0].permute(1,2,0).detach().cpu().numpy()
 
     # flattern to 1D
     attributions = np.sum(np.abs(attributions), axis=-1)
