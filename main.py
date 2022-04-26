@@ -47,7 +47,7 @@ def main():
     # convert to tensor, define baseline and baseline distribution
     input_   = torch.from_numpy(img).permute(2,0,1).unsqueeze(0).to(device)
     baseline = torch.zeros(input_.shape).to(device)
-    baseline_dist = torch.randn(5, 3, 480, 640).to(device) * 0.001
+    baseline_dist = torch.randn(5, input_.shape[0], input_.shape[1], input_.shape[2]).to(device) * 0.001
 
     # load model
     model_path = 'assets/crocodile_frcnn.pt'
@@ -83,10 +83,10 @@ def main():
 
     # Gradient SHAP
     gs = GradientShap(wrapper)
-    # We define a distribution of baselines and draw `n_samples` from that
-    # distribution in order to estimate the expectations of gradients across all baselines
-    attributions, delta = gs.attribute(input_, stdevs=0.09, n_samples=4, baselines=baseline_dist,
-                                target=pred_class, return_convergence_delta=True)
+    attributions, delta = gs.attribute(input_,
+                                    baselines=baseline_dist,
+                                    target=pred_class, 
+                                    return_convergence_delta=True)
 
     print('GradientShap Convergence Delta:', delta)
     print('GradientShap Average Delta per example:', torch.mean(delta.reshape(input_.shape[0], -1), dim=1))
@@ -157,9 +157,9 @@ def save_attr_mask(attributions, img, algo_name):
     # flattern to 1D
     attributions = np.sum(np.abs(attributions), axis=-1)
 
-    # # normalise attributions
-    # attributions -= np.min(attributions)
-    # attributions /= np.max(attributions)
+    # normalise attributions
+    attributions -= np.min(attributions)
+    attributions /= np.max(attributions)
 
     _, axs = plt.subplots(nrows=1, ncols=2, squeeze=False, figsize=(8, 8))
     axs[0, 0].set_title('Attribution mask')
