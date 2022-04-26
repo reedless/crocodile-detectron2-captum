@@ -157,9 +157,9 @@ def save_attr_mask(attributions, img, algo_name):
     # flattern to 1D
     attributions = np.sum(np.abs(attributions), axis=-1)
 
-    # normalise attributions
-    attributions -= np.min(attributions)
-    attributions /= np.max(attributions)
+    # # normalise attributions
+    # attributions -= np.min(attributions)
+    # attributions /= np.max(attributions)
 
     _, axs = plt.subplots(nrows=1, ncols=2, squeeze=False, figsize=(8, 8))
     axs[0, 0].set_title('Attribution mask')
