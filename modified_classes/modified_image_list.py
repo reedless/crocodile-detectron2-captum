@@ -56,9 +56,6 @@ class ModifiedImageList(ImageList):
             padding_size = [0, max_size[-1] - image_size[1], 0, max_size[-2] - image_size[0]]
             batched_imgs = F.pad(tensors[0], padding_size, value=pad_value).unsqueeze_(0)
         else:
-            print("Inside ModifiedImageList.from_tensors")
-            print(len(tensors)) # N, C, H, W
-            
             '''
             basically what's happening here is padding the list of all images into the same max_size
             so that we can pass a N, C, H, W tensor to the model

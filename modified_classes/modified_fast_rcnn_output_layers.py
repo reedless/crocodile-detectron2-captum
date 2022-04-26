@@ -150,7 +150,7 @@ class ModifiedFastRCNNOutputLayers(FastRCNNOutputLayers):
             list[Instances]: same as `fast_rcnn_inference`.
             list[Tensor]: same as `fast_rcnn_inference`.
         """
-        print('PREDICTIONS:', [p.shape for p in predictions])
+        # print('PREDICTIONS:', [p.shape for p in predictions])
         boxes = self.predict_boxes(predictions, proposals)
         scores = self.predict_probs(predictions, proposals)
         image_shapes = [x.image_size for x in proposals]
