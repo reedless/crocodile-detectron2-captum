@@ -47,7 +47,7 @@ def main():
     # convert to tensor, define baseline and baseline distribution
     input_   = torch.from_numpy(img).permute(2,0,1).unsqueeze(0).to(device)
     baseline = torch.zeros(input_.shape).to(device)
-    baseline_dist = torch.randn(5, input_.shape[0], input_.shape[1], input_.shape[2]).to(device) * 0.001
+    baseline_dist = torch.randn(5, input_.shape[1], input_.shape[2], input_.shape[3]).to(device) * 0.001
 
     # load model
     model_path = 'assets/crocodile_frcnn.pt'
