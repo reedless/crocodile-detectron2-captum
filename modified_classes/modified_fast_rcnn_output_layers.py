@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
 import torch
+
 from detectron2.layers import batched_nms
 from detectron2.modeling.roi_heads.fast_rcnn import FastRCNNOutputLayers
 from detectron2.structures import Boxes, Instances

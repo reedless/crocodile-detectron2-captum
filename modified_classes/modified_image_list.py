@@ -1,9 +1,10 @@
 from typing import List, Tuple
 
 import torch
+from torch.nn import functional as F
+
 from detectron2.layers.wrappers import shapes_to_tensor
 from detectron2.structures import ImageList
-from torch.nn import functional as F
 
 
 class ModifiedImageList(ImageList):

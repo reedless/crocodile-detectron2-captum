@@ -5,11 +5,10 @@ import numpy as np
 import torch
 
 import cv2
-from captum.attr import (IntegratedGradients, GradientShap, 
-                         DeepLift, DeepLiftShap,
-                         Saliency, InputXGradient,
-                         Deconvolution, GuidedBackprop, GuidedGradCam,
-                         FeatureAblation, Occlusion)
+from captum.attr import (Deconvolution, DeepLift, DeepLiftShap,
+                         FeatureAblation, GradientShap, GuidedBackprop,
+                         GuidedGradCam, InputXGradient, IntegratedGradients,
+                         Occlusion, Saliency)
 from detectron2 import model_zoo
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
@@ -151,6 +150,9 @@ def new_preprocess_image(self, batched_inputs: torch.Tensor):
 
 
 def save_attr_mask(attributions, img, algo_name):
+    # save attributions
+    torch.save(attributions, f'attributions/{algo_name}_attributions.pt')
+
     # C, H, W -> H, W, C
     attributions = attributions[0].permute(1,2,0).detach().cpu().numpy()
 
