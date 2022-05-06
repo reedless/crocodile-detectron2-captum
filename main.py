@@ -1,3 +1,4 @@
+import os
 from types import MethodType
 
 import matplotlib.pyplot as plt
@@ -48,110 +49,114 @@ def main():
     baseline = torch.zeros(input_.shape).to(device).type(torch.cuda.FloatTensor)
     baseline_dist = torch.randn(5, input_.shape[1], input_.shape[2], input_.shape[3]).to(device) * 0.001
 
-    # load model
-    model_path = 'assets/crocodile_frcnn.pt'
+    model_paths = ['assets/frcnn-20epochs/frcnn-20epochs.pt', 
+                   'assets/frcnn-50epochs/frcnn-50epochs.pt', 
+                   'assets/frcnn-100epochs/frcnn-100epochs.pt']
 
-    cfg = get_cfg()
-    cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
-    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
-    cfg.MODEL.ROI_HEADS.NMS_THRESH_TEST = 0.3
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
-    cfg.MODEL.WEIGHTS = model_path
+    for model_path in model_paths:
+        # load model
+        cfg = get_cfg()
+        cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
+        cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
+        cfg.MODEL.ROI_HEADS.NMS_THRESH_TEST = 0.3
+        cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
+        cfg.MODEL.WEIGHTS = model_path
 
-    model = build_model(cfg).to(device).eval()
-    model.roi_heads.box_predictor = ModifiedFastRCNNOutputLayers(model.roi_heads.box_predictor)
-    model.preprocess_image = MethodType(new_preprocess_image, model)
-    model.roi_heads.forward_with_given_boxes = MethodType(lambda self, x, y: y, model)
+        model = build_model(cfg).to(device).eval()
+        model.roi_heads.box_predictor = ModifiedFastRCNNOutputLayers(model.roi_heads.box_predictor)
+        model.preprocess_image = MethodType(new_preprocess_image, model)
+        model.roi_heads.forward_with_given_boxes = MethodType(lambda self, x, y: y, model)
 
-    modified = model
+        modified = model
 
-    DetectionCheckpointer(modified).load(cfg.MODEL.WEIGHTS)
-    modified.roi_heads.box_predictor.class_scores_only = True
-    modified.to(device)
+        DetectionCheckpointer(modified).load(cfg.MODEL.WEIGHTS)
+        modified.roi_heads.box_predictor.class_scores_only = True
+        modified.to(device)
 
-    wrapper = WrapperModel(modified, device)
-    pred_class = 0
+        wrapper = WrapperModel(modified, device)
+        pred_class = 0
 
-    # Integrated Gradients
-    ig = IntegratedGradients(wrapper)
-    attributions, delta = ig.attribute(input_,
-                                    target=pred_class,
-                                    return_convergence_delta=True)
-    print('Integrated Gradients Convergence Delta:', delta)
-    save_attr_mask(attributions, img, 'IG')
+        # Integrated Gradients
+        ig = IntegratedGradients(wrapper)
+        attributions, delta = ig.attribute(input_,
+                                            target=pred_class,
+                                            return_convergence_delta=True)
+        print('Integrated Gradients Convergence Delta:', delta)
+        save_attr_mask(attributions, img, 'IG')
 
-    # Gradient SHAP
-    gs = GradientShap(wrapper)
-    attributions, delta = gs.attribute(input_,
-                                    stdevs=0.09, n_samples=4, baselines=baseline_dist,
-                                    target=pred_class, 
-                                    return_convergence_delta=True)
+        # Gradient SHAP
+        gs = GradientShap(wrapper)
+        attributions, delta = gs.attribute(input_,
+                                            stdevs=0.09, n_samples=4, baselines=baseline_dist,
+                                            target=pred_class, 
+                                            return_convergence_delta=True)
 
-    print('GradientShap Convergence Delta:', delta)
-    print('GradientShap Average Delta per example:', torch.mean(delta.reshape(input_.shape[0], -1), dim=1))
-    save_attr_mask(attributions, img, 'GradientShap')
+        print('GradientShap Convergence Delta:', delta)
+        print('GradientShap Average Delta per example:', torch.mean(delta.reshape(input_.shape[0], -1), dim=1))
+        save_attr_mask(attributions, img, 'GradientShap')
 
-    # Deep Lift
-    dl = DeepLift(wrapper)
-    attributions, delta = dl.attribute(input_, baseline, target=pred_class, return_convergence_delta=True)
-    print('DeepLift Convergence Delta:', delta)
-    save_attr_mask(attributions, img, 'DeepLift')
+        # Deep Lift
+        dl = DeepLift(wrapper)
+        attributions, delta = dl.attribute(input_, baseline, target=pred_class, return_convergence_delta=True)
+        print('DeepLift Convergence Delta:', delta)
+        save_attr_mask(attributions, img, 'DeepLift')
 
-    # DeepLiftShap
-    dls = DeepLiftShap(wrapper)
-    attributions, delta = dls.attribute(input_.float(), baseline_dist, target=pred_class, return_convergence_delta=True)
-    print('DeepLiftShap Convergence Delta:', delta)
-    print('Deep Lift SHAP Average delta per example:', torch.mean(delta.reshape(input_.shape[0], -1), dim=1))
-    save_attr_mask(attributions, img, 'DeepLiftShap')
+        # DeepLiftShap
+        dls = DeepLiftShap(wrapper)
+        attributions, delta = dls.attribute(input_.float(), baseline_dist, target=pred_class, return_convergence_delta=True)
+        print('DeepLiftShap Convergence Delta:', delta)
+        print('Deep Lift SHAP Average delta per example:', torch.mean(delta.reshape(input_.shape[0], -1), dim=1))
+        save_attr_mask(attributions, img, 'DeepLiftShap')
 
-    # Saliency
-    saliency = Saliency(wrapper)
-    attributions = saliency.attribute(input_, target=pred_class)
-    save_attr_mask(attributions, img, 'Saliency')
+        # Saliency
+        saliency = Saliency(wrapper)
+        attributions = saliency.attribute(input_, target=pred_class)
+        save_attr_mask(attributions, img, 'Saliency')
 
-    # InputXGradient
-    inputxgradient = InputXGradient(wrapper)
-    attributions = inputxgradient.attribute(input_, target=pred_class)
-    save_attr_mask(attributions, img, 'InputXGradient')
+        # InputXGradient
+        inputxgradient = InputXGradient(wrapper)
+        attributions = inputxgradient.attribute(input_, target=pred_class)
+        save_attr_mask(attributions, img, 'InputXGradient')
 
-    # Deconvolution
-    deconv = Deconvolution(wrapper)
-    attributions = deconv.attribute(input_, target=pred_class)
-    save_attr_mask(attributions, img, 'Deconvolution')
+        # Deconvolution
+        deconv = Deconvolution(wrapper)
+        attributions = deconv.attribute(input_, target=pred_class)
+        save_attr_mask(attributions, img, 'Deconvolution')
 
-    # Guided Backprop
-    gbp = GuidedBackprop(wrapper)
-    attributions = gbp.attribute(input_, target=pred_class)
-    save_attr_mask(attributions, img, 'GuidedBackprop')
+        # Guided Backprop
+        gbp = GuidedBackprop(wrapper)
+        attributions = gbp.attribute(input_, target=pred_class)
+        save_attr_mask(attributions, img, 'GuidedBackprop')
 
-    # # GuidedGradCam
-    # guided_gc = GuidedGradCam(wrapper, wrapper.model.backbone) # TODO: doesnt seem right
-    # attribution = guided_gc.attribute(input_, target=pred_class, attribute_to_layer_input=True)
-    # save_attr_mask(attribution, img, 'GuidedGradCam')
+        # # GuidedGradCam
+        # guided_gc = GuidedGradCam(wrapper, wrapper.model.backbone) # TODO: doesnt seem right
+        # attribution = guided_gc.attribute(input_, target=pred_class, attribute_to_layer_input=True)
+        # save_attr_mask(attribution, img, 'GuidedGradCam')
 
-#     # FeatureAblation
-#     ablator = FeatureAblation(wrapper)
-#     attributions = ablator.attribute(input_, target=pred_class, show_progress=True)
-#     save_attr_mask(attributions, img, 'FeatureAblation')
+        # # FeatureAblation
+        # ablator = FeatureAblation(wrapper)
+        # attributions = ablator.attribute(input_, target=pred_class, show_progress=True)
+        # save_attr_mask(attributions, img, 'FeatureAblation')
 
-#     # Occlusion
-#     ablator = Occlusion(wrapper)
-#     attributions = ablator.attribute(input_, target=pred_class, sliding_window_shapes=(1, 3,3), show_progress=True)
-#     save_attr_mask(attributions, img, 'Occlusion')
+        # # Occlusion
+        # ablator = Occlusion(wrapper)
+        # attributions = ablator.attribute(input_, target=pred_class, sliding_window_shapes=(1, 3,3), show_progress=True)
+        # save_attr_mask(attributions, img, 'Occlusion')
 
 def new_preprocess_image(self, batched_inputs: torch.Tensor):
-      """
-      Normalize, pad and batch the input images.
-      """
-      images = [x.to(self.device) for x in batched_inputs]
-      images = [(x - self.pixel_mean) / self.pixel_std for x in images]
-      images = ModifiedImageList.from_tensors(images, self.backbone.size_divisibility) # Extend ImageList to new object
-      return images
+    """
+    Normalize, pad and batch the input images.
+    """
+    images = [x.to(self.device) for x in batched_inputs]
+    images = [(x - self.pixel_mean) / self.pixel_std for x in images]
+    images = ModifiedImageList.from_tensors(images, self.backbone.size_divisibility) # Extend ImageList to new object
+    return images
 
 
-def save_attr_mask(attributions, img, algo_name):
+def save_attr_mask(attributions, img, algo_name, epochs):
     # save attributions
-    torch.save(attributions, f'attributions/{algo_name}_attributions.pt')
+    os.makedirs(f'attributions/{epochs}/{algo_name}', exist_ok=True)
+    torch.save(attributions, f'attributions/{epochs}/{algo_name}_attributions.pt')
 
     # C, H, W -> H, W, C
     attributions = attributions[0].permute(1,2,0).detach().cpu().numpy()
@@ -163,6 +168,7 @@ def save_attr_mask(attributions, img, algo_name):
     attributions -= np.min(attributions)
     attributions /= np.max(attributions)
 
+    # plot masks
     _, axs = plt.subplots(nrows=1, ncols=2, squeeze=False, figsize=(8, 8))
     axs[0, 0].set_title('Attribution mask')
     axs[0, 0].imshow(attributions, cmap=plt.cm.inferno)
@@ -172,7 +178,11 @@ def save_attr_mask(attributions, img, algo_name):
     axs[0, 1].imshow(img, alpha=0.5)
     axs[0, 1].axis('off')
     plt.tight_layout()
-    plt.savefig(f'outputs/{algo_name}_mask.png', bbox_inches='tight')
+
+    # save masks
+    os.makedirs(f'outputs/{epochs}/{algo_name}', exist_ok=True)
+    plt.savefig(f'outputs/{epochs}/{algo_name}_mask.png', bbox_inches='tight')
+    plt.close()
 
 
 if __name__ == "__main__":
