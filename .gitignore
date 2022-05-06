@@ -2,4 +2,4 @@ dataset/
 dataset.zip
 .ipynb_checkpoints
 **/__pycache__
-assets/crocodile_frcnn.pt
+assets/**/*.pt

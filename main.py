@@ -106,38 +106,38 @@ def main():
 
     # Saliency
     saliency = Saliency(wrapper)
-    attribution = saliency.attribute(input_, target=pred_class)
-    save_attr_mask(attribution, img, 'Saliency')
+    attributions = saliency.attribute(input_, target=pred_class)
+    save_attr_mask(attributions, img, 'Saliency')
 
     # InputXGradient
     inputxgradient = InputXGradient(wrapper)
-    attribution = inputxgradient.attribute(input_, target=pred_class)
-    save_attr_mask(attribution, img, 'InputXGradient')
+    attributions = inputxgradient.attribute(input_, target=pred_class)
+    save_attr_mask(attributions, img, 'InputXGradient')
 
     # Deconvolution
     deconv = Deconvolution(wrapper)
-    attribution = deconv.attribute(input_, target=pred_class)
-    save_attr_mask(attribution, img, 'Deconvolution')
+    attributions = deconv.attribute(input_, target=pred_class)
+    save_attr_mask(attributions, img, 'Deconvolution')
 
     # Guided Backprop
     gbp = GuidedBackprop(wrapper)
-    attribution = gbp.attribute(input_, target=pred_class)
-    save_attr_mask(attribution, img, 'GuidedBackprop')
+    attributions = gbp.attribute(input_, target=pred_class)
+    save_attr_mask(attributions, img, 'GuidedBackprop')
 
     # # GuidedGradCam
     # guided_gc = GuidedGradCam(wrapper, wrapper.model.backbone) # TODO: doesnt seem right
     # attribution = guided_gc.attribute(input_, target=pred_class, attribute_to_layer_input=True)
     # save_attr_mask(attribution, img, 'GuidedGradCam')
 
-    # FeatureAblation
-    ablator = FeatureAblation(wrapper)
-    attr = ablator.attribute(input_, target=pred_class, show_progress=True)
-    save_attr_mask(attr, img, 'FeatureAblation')
+#     # FeatureAblation
+#     ablator = FeatureAblation(wrapper)
+#     attributions = ablator.attribute(input_, target=pred_class, show_progress=True)
+#     save_attr_mask(attributions, img, 'FeatureAblation')
 
-    # Occlusion
-    ablator = Occlusion(wrapper)
-    attr = ablator.attribute(input_, target=pred_class, sliding_window_shapes=(1, 3,3), show_progress=True)
-    save_attr_mask(attr, img, 'Occlusion')
+#     # Occlusion
+#     ablator = Occlusion(wrapper)
+#     attributions = ablator.attribute(input_, target=pred_class, sliding_window_shapes=(1, 3,3), show_progress=True)
+#     save_attr_mask(attributions, img, 'Occlusion')
 
 def new_preprocess_image(self, batched_inputs: torch.Tensor):
       """
