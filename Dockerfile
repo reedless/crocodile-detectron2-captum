@@ -9,11 +9,22 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
 RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/7fa2af80.pub
 
-RUN apt-get update && apt-get install -y \
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        software-properties-common \
+    && add-apt-repository -y ppa:deadsnakes \
+    && apt-get install -y --no-install-recommends \
+        python3.8 \
+        python3-pip \
+        python3.8-dev
+RUN apt-get install -y \
     libgl1 libsm6 libxrender1 libglib2.0-0 \
-	python3-pip \
-    git \
-    && apt-get clean && rm -rf /tmp/* /var/tmp/*
+    git
+RUN apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/* /var/tmp/*
+
+RUN rm /usr/bin/python3 && ln -s /usr/bin/python3.8 /usr/bin/python3
 
 WORKDIR /app
 
