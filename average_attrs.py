@@ -1,20 +1,20 @@
 import os
 from types import MethodType
 
-import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+
+import cv2
 from captum.attr import (Deconvolution, DeepLift, DeepLiftShap, GradientShap,
                          GuidedBackprop, InputXGradient, IntegratedGradients,
                          Saliency)
-from sklearn.metrics.pairwise import cosine_similarity
-
 from detectron2 import model_zoo
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.modeling import build_model
 from modified_classes import ModifiedFastRCNNOutputLayers, ModifiedImageList
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 class WrapperModel(torch.nn.Module):
