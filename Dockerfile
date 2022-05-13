@@ -12,6 +12,7 @@ RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/machin
 RUN apt-get update && apt-get install -y \
     libgl1 libsm6 libxrender1 libglib2.0-0 \
 	python3-pip \
+    git \
     && apt-get clean && rm -rf /tmp/* /var/tmp/*
 
 WORKDIR /app
