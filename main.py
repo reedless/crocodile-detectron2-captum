@@ -1,15 +1,15 @@
 import os
 from types import MethodType
 
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-
-import cv2
 from captum.attr import (Deconvolution, DeepLift, DeepLiftShap,
                          FeatureAblation, GradientShap, GuidedBackprop,
                          GuidedGradCam, InputXGradient, IntegratedGradients,
                          Occlusion, Saliency)
+
 from detectron2 import model_zoo
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
