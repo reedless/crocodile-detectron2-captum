@@ -1,20 +1,20 @@
 import os
 from types import MethodType
 
-import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+
+import cv2
 from captum.attr import (Deconvolution, DeepLift, DeepLiftShap, GradientShap,
                          GuidedBackprop, InputXGradient, IntegratedGradients,
                          Saliency)
-from sklearn.metrics.pairwise import cosine_similarity
-
 from detectron2 import model_zoo
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.modeling import build_model
 from modified_classes import ModifiedFastRCNNOutputLayers, ModifiedImageList
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 class WrapperModel(torch.nn.Module):
@@ -47,7 +47,7 @@ def main(image_path, weights_path):
     # convert to tensor, define baseline and baseline distribution
     input_   = torch.from_numpy(img).permute(2,0,1).unsqueeze(0).to(device).type(torch.cuda.FloatTensor)
     baseline = torch.zeros(input_.shape).to(device).type(torch.cuda.FloatTensor)
-    baseline_dist = torch.randn(5, input_.shape[1], input_.shape[2], input_.shape[3]).to(device) * 0.001
+    # baseline_dist = torch.randn(5, input_.shape[1], input_.shape[2], input_.shape[3]).to(device) * 0.001
 
     model_path = weights_path
 
@@ -79,21 +79,21 @@ def main(image_path, weights_path):
                                         target=pred_class,
                                         return_convergence_delta=True)
 
-    # Gradient SHAP
-    gs = GradientShap(wrapper)
-    gs_attributions, _ = gs.attribute(input_,
-                                        stdevs=0.09, n_samples=4, baselines=baseline_dist,
-                                        target=pred_class, 
-                                        return_convergence_delta=True)
+    # # Gradient SHAP
+    # gs = GradientShap(wrapper)
+    # gs_attributions, _ = gs.attribute(input_,
+    #                                     stdevs=0.09, n_samples=4, baselines=baseline_dist,
+    #                                     target=pred_class, 
+    #                                     return_convergence_delta=True)
 
 
     # Deep Lift
     dl = DeepLift(wrapper)
     dl_attributions, _ = dl.attribute(input_, baseline, target=pred_class, return_convergence_delta=True)
 
-    # DeepLiftShap
-    dls = DeepLiftShap(wrapper)
-    dla_attributions, _ = dls.attribute(input_.float(), baseline_dist, target=pred_class, return_convergence_delta=True)
+    # # DeepLiftShap
+    # dls = DeepLiftShap(wrapper)
+    # dla_attributions, _ = dls.attribute(input_.float(), baseline_dist, target=pred_class, return_convergence_delta=True)
 
     # Saliency
     saliency = Saliency(wrapper)
@@ -111,8 +111,10 @@ def main(image_path, weights_path):
     gbp = GuidedBackprop(wrapper)
     gbp_attributions = gbp.attribute(input_, target=pred_class)
 
-    attrs = [ig_attributions, gs_attributions, 
-            dl_attributions, dla_attributions, 
+    attrs = [ig_attributions,
+            # gs_attributions, 
+            dl_attributions,
+            # dla_attributions, 
             saliency_attributions, inputxgradient_attributions, 
             deconv_attributions, gbp_attributions]
     processed_attrs = [process_attr(attr).reshape((-1)) for attr in attrs]
