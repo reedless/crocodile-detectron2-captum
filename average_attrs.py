@@ -53,7 +53,7 @@ def average_cosine_similarity(image_path, weights_path):
 
     print(input_.shape)
     print(baseline.shape)
-    
+
     model_path = weights_path
 
     # load model
@@ -92,9 +92,41 @@ def average_cosine_similarity(image_path, weights_path):
     #                                     return_convergence_delta=True)
 
 
-    # Deep Lift
-    dl = DeepLift(wrapper)
-    dl_attributions, _ = dl.attribute(input_, baseline, target=pred_class, return_convergence_delta=True)
+    # # Deep Lift
+    # dl = DeepLift(wrapper)
+    # dl_attributions, _ = dl.attribute(input_, baseline, target=pred_class, return_convergence_delta=True)
+    """
+    root@VAP-DGX-Station:/app# python3 average_attrs.py -i "dataset/closeups/Spencer_Yau_Crocodile (109).jpg"
+    (213, 320, 3)
+    torch.Size([1, 3, 213, 320])
+    torch.Size([1, 3, 213, 320])
+    /usr/local/lib/python3.8/dist-packages/captum/_utils/gradient.py:56: UserWarning: Input Tensor 0 did not already require gradients, required_grads has been set automatically.
+    warnings.warn(
+    /usr/local/lib/python3.8/dist-packages/captum/attr/_core/deep_lift.py:320: UserWarning: Setting forward, backward hooks and attributes on non-linear
+                activations. The hooks and attributes will be removed
+                after the attribution is finished
+    warnings.warn(
+    Traceback (most recent call last):
+    File "average_attrs.py", line 163, in <module>
+        average_cosine_similarity(image_path=args.image_path, weights_path=args.weights_path)
+    File "average_attrs.py", line 97, in average_cosine_similarity
+        dl_attributions, _ = dl.attribute(input_, baseline, target=pred_class, return_convergence_delta=True)
+    File "/usr/local/lib/python3.8/dist-packages/captum/log/__init__.py", line 35, in wrapper
+        return func(*args, **kwargs)
+    File "/usr/local/lib/python3.8/dist-packages/captum/attr/_core/deep_lift.py", line 347, in attribute
+        gradients = self.gradient_func(wrapped_forward_func, inputs)
+    File "/usr/local/lib/python3.8/dist-packages/captum/_utils/gradient.py", line 118, in compute_gradients
+        grads = torch.autograd.grad(torch.unbind(outputs), inputs)
+    File "/usr/local/lib/python3.8/dist-packages/torch/autograd/__init__.py", line 223, in grad
+        return Variable._execution_engine.run_backward(
+    File "/usr/local/lib/python3.8/dist-packages/captum/attr/_core/deep_lift.py", line 497, in _backward_hook
+        SUPPORTED_NON_LINEAR[type(module)](
+    File "/usr/local/lib/python3.8/dist-packages/captum/attr/_core/deep_lift.py", line 928, in nonlinear
+        delta_in, delta_out = _compute_diffs(inputs, outputs)
+    File "/usr/local/lib/python3.8/dist-packages/captum/attr/_core/deep_lift.py", line 1114, in _compute_diffs
+        delta_in = input - input_ref
+    RuntimeError: The size of tensor a (974) must match the size of tensor b (973) at non-singleton dimension 0
+    """
 
     # # DeepLiftShap
     # dls = DeepLiftShap(wrapper)
