@@ -1,7 +1,10 @@
 import os
 import pickle
+import warnings
 
 from average_attrs import average_cosine_similarity
+
+warnings.filterwarnings("ignore")
 
 with open('split_imgs.pkl', 'rb') as f:
     split_imgs = pickle.load(f)
