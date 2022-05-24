@@ -34,7 +34,7 @@ class WrapperModel(torch.nn.Module):
                                           torch.zeros((1, outputs[i].shape[1])).to(self.device)]))
             return torch.cat(acc)
 
-def main(image_path, weights_path):
+def average_cosine_similarity(image_path, weights_path):
     device = torch.device("cuda")
 
     # read sample image
@@ -120,7 +120,9 @@ def main(image_path, weights_path):
     processed_attrs = [process_attr(attr).reshape((-1)) for attr in attrs]
     sim_mat = cosine_similarity(np.stack(processed_attrs))
 
-    print("Average cosine similarity between attributions:", (np.sum(sim_mat) - len(attrs))/ (len(attrs)**2 - len(attrs)))
+    average_cosine_similarity = (np.sum(sim_mat) - len(attrs))/ (len(attrs)**2 - len(attrs))
+    print("Average cosine similarity between attributions:", average_cosine_similarity)
+    return average_cosine_similarity
 
 
 def new_preprocess_image(self, batched_inputs: torch.Tensor):
@@ -153,4 +155,4 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--image_path", type=str, default="dataset/night/20201201_000505.jpg")
     parser.add_argument("-w", "--weights_path", type=str, default="assets/frcnn-100epochs/frcnn-100epochs.pt")
     args = parser.parse_args()
-    main(image_path=args.image_path, weights_path=args.weights_path)
+    average_cosine_similarity(image_path=args.image_path, weights_path=args.weights_path)
