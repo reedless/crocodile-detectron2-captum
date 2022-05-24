@@ -39,17 +39,21 @@ def average_cosine_similarity(image_path, weights_path):
 
     # read sample image
     img = cv2.imread(image_path)
-    print(img.shape)
 
     # resize image
     while img.shape[0] > 500:
         img = cv2.resize(img, (img.shape[0]//2, img.shape[1]//2), interpolation = cv2.INTER_AREA)
+
+    print(img.shape)
 
     # convert to tensor, define baseline and baseline distribution
     input_   = torch.from_numpy(img).permute(2,0,1).unsqueeze(0).to(device).type(torch.cuda.FloatTensor)
     baseline = torch.zeros(input_.shape).to(device).type(torch.cuda.FloatTensor)
     # baseline_dist = torch.randn(5, input_.shape[1], input_.shape[2], input_.shape[3]).to(device) * 0.001
 
+    print(input_.shape)
+    print(baseline.shape)
+    
     model_path = weights_path
 
     # load model
