@@ -14,6 +14,7 @@ for epoch in [20, 50, 100]:
     for key in sorted(os.listdir('dataset')):
         for i in range(25):
             image_path = f'dataset/{key}/{split_imgs[key]["test"][i]}'
+            print(image_path)
 
             average_scores.append(average_cosine_similarity(image_path, weights_path))
 
