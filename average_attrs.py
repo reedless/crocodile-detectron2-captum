@@ -150,7 +150,7 @@ def average_cosine_similarity(image_path, weights_path):
 
     attrs = [ig_attributions,
             # gs_attributions, 
-            dl_attributions,
+            # dl_attributions,
             # dla_attributions, 
             saliency_attributions, inputxgradient_attributions, 
             deconv_attributions, gbp_attributions]
