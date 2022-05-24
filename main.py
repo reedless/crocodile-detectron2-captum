@@ -18,7 +18,7 @@ for epoch in [20, 50, 100]:
 
     for key in sorted(os.listdir('dataset')):
         for i in range(len(split_imgs[key]["test"])):
-            if count > 10:
+            if count >= 100:
                 break
             image_path = f'dataset/{key}/{split_imgs[key]["test"][i]}'
             # print(image_path)
