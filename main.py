@@ -20,7 +20,7 @@ for epoch in [20, 50, 100]:
             print(image_path)
             try:
                 average_scores.append(average_cosine_similarity(image_path, weights_path))
-            except:
+            except ValueError:
                 continue
 
     print(f'Average cosine similarity for {epoch} epochs: {sum(average_scores)/len(average_scores)}')
