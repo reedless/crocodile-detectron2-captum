@@ -39,6 +39,7 @@ def average_cosine_similarity(image_path, weights_path):
 
     # read sample image
     img = cv2.imread(image_path)
+    print(img.shape)
 
     # resize image
     while img.shape[0] > 500:
