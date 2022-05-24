@@ -18,6 +18,9 @@ for epoch in [20, 50, 100]:
         for i in range(len(split_imgs[key]["test"])):
             image_path = f'dataset/{key}/{split_imgs[key]["test"][i]}'
             print(image_path)
-            average_scores.append(average_cosine_similarity(image_path, weights_path))
+            try:
+                average_scores.append(average_cosine_similarity(image_path, weights_path))
+            except:
+                continue
 
     print(f'Average cosine similarity for {epoch} epochs: {sum(average_scores)/len(average_scores)}')
