@@ -38,7 +38,7 @@ def main():
     device = torch.device("cuda")
 
     # read sample image
-    img = cv2.imread('dataset/night/20201201_000505.jpg')
+    img = cv2.imread('test.jpg')
 
     # resize image
     while img.shape[0] > 500:
@@ -46,8 +46,8 @@ def main():
 
     # convert to tensor, define baseline and baseline distribution
     input_   = torch.from_numpy(img).permute(2,0,1).unsqueeze(0).to(device).type(torch.cuda.FloatTensor)
-    baseline = torch.zeros(input_.shape).to(device).type(torch.cuda.FloatTensor)
-    baseline_dist = torch.randn(5, input_.shape[1], input_.shape[2], input_.shape[3]).to(device) * 0.001
+    # baseline = torch.zeros(input_.shape).to(device).type(torch.cuda.FloatTensor)
+    # baseline_dist = torch.randn(5, input_.shape[1], input_.shape[2], input_.shape[3]).to(device) * 0.001
 
     epochs = [20, 50, 100]
 
@@ -84,29 +84,29 @@ def main():
         print('Integrated Gradients Convergence Delta:', delta)
         save_attr_mask(attributions, img, 'IG', epoch)
 
-        # Gradient SHAP
-        gs = GradientShap(wrapper)
-        attributions, delta = gs.attribute(input_,
-                                            stdevs=0.09, n_samples=4, baselines=baseline_dist,
-                                            target=pred_class, 
-                                            return_convergence_delta=True)
+        # # Gradient SHAP
+        # gs = GradientShap(wrapper)
+        # attributions, delta = gs.attribute(input_,
+        #                                     stdevs=0.09, n_samples=4, baselines=baseline_dist,
+        #                                     target=pred_class, 
+        #                                     return_convergence_delta=True)
 
-        print('GradientShap Convergence Delta:', delta)
-        print('GradientShap Average Delta per example:', torch.mean(delta.reshape(input_.shape[0], -1), dim=1))
-        save_attr_mask(attributions, img, 'GradientShap', epoch)
+        # print('GradientShap Convergence Delta:', delta)
+        # print('GradientShap Average Delta per example:', torch.mean(delta.reshape(input_.shape[0], -1), dim=1))
+        # save_attr_mask(attributions, img, 'GradientShap', epoch)
 
-        # Deep Lift
-        dl = DeepLift(wrapper)
-        attributions, delta = dl.attribute(input_, baseline, target=pred_class, return_convergence_delta=True)
-        print('DeepLift Convergence Delta:', delta)
-        save_attr_mask(attributions, img, 'DeepLift', epoch)
+        # # Deep Lift
+        # dl = DeepLift(wrapper)
+        # attributions, delta = dl.attribute(input_, baseline, target=pred_class, return_convergence_delta=True)
+        # print('DeepLift Convergence Delta:', delta)
+        # save_attr_mask(attributions, img, 'DeepLift', epoch)
 
-        # DeepLiftShap
-        dls = DeepLiftShap(wrapper)
-        attributions, delta = dls.attribute(input_.float(), baseline_dist, target=pred_class, return_convergence_delta=True)
-        print('DeepLiftShap Convergence Delta:', delta)
-        print('Deep Lift SHAP Average delta per example:', torch.mean(delta.reshape(input_.shape[0], -1), dim=1))
-        save_attr_mask(attributions, img, 'DeepLiftShap', epoch)
+        # # DeepLiftShap
+        # dls = DeepLiftShap(wrapper)
+        # attributions, delta = dls.attribute(input_.float(), baseline_dist, target=pred_class, return_convergence_delta=True)
+        # print('DeepLiftShap Convergence Delta:', delta)
+        # print('Deep Lift SHAP Average delta per example:', torch.mean(delta.reshape(input_.shape[0], -1), dim=1))
+        # save_attr_mask(attributions, img, 'DeepLiftShap', epoch)
 
         # Saliency
         saliency = Saliency(wrapper)
