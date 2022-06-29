@@ -1,7 +1,5 @@
-import os
 from types import MethodType
 
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
